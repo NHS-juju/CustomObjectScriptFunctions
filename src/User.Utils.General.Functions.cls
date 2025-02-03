@@ -9,6 +9,7 @@ Class User.Utils.General.Functions Extends Ens.Rule.FunctionSet
  |____/ \__,_|\__\___||___/ /_/   \_\_| |_|\__,_|   |_| |_|_| |_| |_|\___||___/
 */
 /// Returns patient age in years when provided a date of birth in horolog/internal format. Returns 0 if less than a year old.
+/// Code found here: https://community.intersystems.com/post/calculate-age-person but may have come from the Samples namespace that was once bundled with installs of Cache/IRIS.
 ClassMethod AgeInYears(DOB As %Integer) As %Integer
 {
     Quit $SELECT(DOB="":"",1:($ZDATE($HOROLOG,8)-$ZDATE(DOB,8)\10000))
@@ -43,6 +44,7 @@ ClassMethod AgeAsString(DOB As %Integer) As %Integer
 /// <li>4 is Thursday</li>
 /// <li>5 is Friday</li>
 /// <li>6 is Saturday</li></ul>
+/// Code found here: https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=EGDV_adv#EGDV_adv_custom_utilfunctions
 ClassMethod DayOfWeek() As %Integer [ CodeMode = expression, Final ]
 {
 $ZDATE($HOROLOG,10)
