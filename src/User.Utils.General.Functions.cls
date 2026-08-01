@@ -8,20 +8,20 @@ Class User.Utils.General.Functions Extends Ens.Rule.FunctionSet
  | |_| | (_| | ||  __/\__ \  / ___ \| | | | (_| |   | | | | | | | | |  __/\__ \
  |____/ \__,_|\__\___||___/ /_/   \_\_| |_|\__,_|   |_| |_|_| |_| |_|\___||___/
 */
-/// Returns patient age in years when provided a date of birth in horolog/internal format. Returns 0 if less than a year old.
+/// Returns person age in years when provided a date of birth in horolog/internal format. Returns 0 if less than a year old.
 /// Code found here: https://community.intersystems.com/post/calculate-age-person but may have come from the Samples namespace that was once bundled with installs of Cache/IRIS.
 ClassMethod AgeInYears(DOB As %Integer) As %Integer
 {
     Quit $SELECT(DOB="":"",1:($ZDATE($HOROLOG,8)-$ZDATE(DOB,8)\10000))
 }
 
-/// Returns patient age when provided a date of birth in horolog/internal format.
+/// Returns person age when provided a date of birth in horolog/internal format.
 ClassMethod AgeInDays(DOB As %Integer) As %Integer
 {
     Quit $HOROLOG-DOB
 }
 
-/// Returns patient age in a textual foramt when provided a date of birth in horolog/internal format.
+/// Returns person age in a textual foramt when provided a date of birth in horolog/internal format.
 ClassMethod AgeAsString(DOB As %Integer) As %Integer
 {
     Set Age = ..AgeInYears(DOB)
@@ -220,5 +220,34 @@ ClassMethod LegacyAddressLength(inAddress As %ArrayOfDataTypes, maxLineLength As
     }
     Quit outAddress
 }
+ClassMethod ValidateNHS(pNHSNumber As %String) As %Boolean
+{
+	Set NHSNumber = $ZSTRIP(pNHSNumber,"*AP")
+	// Step 0: Check the length of the input now we have removed all letters and punctuation
+	If $LENGTH(NHSNumber)'=10 Quit 0
 
+    // Step 1: multiply first 9 digits by (11 - position), adding the result of each multiplication together
+    Set total = 0
+    For i=1:1:9 {
+        Set j = 11-i, total = total + ($EXTRACT(NHSNumber,i) * j)
+    }
+    
+    // Step 2: calculate the mod11 remainder
+    Set mod11 = total#11
+
+    // Step 3: subtract the remainder from 11 to give the check digit
+    Set checksum = 11 - mod11
+
+    // If the calculated checksum = 10, this is not a valid NHS number
+    If checksum = 10 Quit 0
+
+    // If the calculated checksum = 11, then a check digit of 0 is used. 
+    If checksum = 11 Set checksum = 0
+
+    // If the checksum does not match the 10th digit of the NHS Number, then this is invalid number
+    If checksum '= $EXTRACT(NHSNumber,10) Quit 0
+
+    // If here, we have a valid NHS number
+    Quit 1
+}
 }
