@@ -99,6 +99,29 @@ ClassMethod IsDaySaturday() As %Boolean
 	Quit 0
 }
 
+/// Values in for day are 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+ClassMethod IsDayLastOccurenceOfMonth(pDay As %Integer) As %Boolean
+{
+	// Get static horolog to avoid the risk of a date rollover midway through the running of this method
+	Set tHoro = $PIECE($HOROLOG,",",1)
+
+	// If today is not a match or the input is empty, quit 0
+	If (($ZDATE(tHoro,10)'= 4)||(pDay="")) Quit 0
+
+	//Now, we need to get the month for todays date
+	Set tMonth = $PIECE($ZDATE(tHoro,5)," ",1)
+
+	// Add 7 to the day portion of $H and get new values
+	Set xHoro = tHoro+7
+	Set xMonth = $PIECE($ZDATE(xHoro,5)," ",1)
+
+	// If we are still in the same month, then today isn't the last x of the month
+	If xMonth=tMonth Quit 0
+
+	Quit 1
+
+}
+
 /// Check time is between 9 am and 5 pm
 /// <Example>
 /// ..IsInTimePeriod("09:00","17:00")
